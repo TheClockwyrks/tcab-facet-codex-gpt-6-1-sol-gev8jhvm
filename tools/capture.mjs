@@ -4,6 +4,10 @@ import { writeFile } from "node:fs/promises";
 import { gzipSync } from "node:zlib";
 const browser = await chromium.launch({ args: ["--no-sandbox"] });
 const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
+// Capture is deliberately isolated from the development server’s hot reload.
+await page.route("**/@vite/client", (route) =>
+  route.fulfill({ contentType: "application/javascript", body: "" }),
+);
 const failures = [];
 page.on("pageerror", (e) => failures.push(e.message));
 await page.goto("http://localhost:5173/tools/capture.html");
